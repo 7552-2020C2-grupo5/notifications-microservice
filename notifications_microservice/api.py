@@ -5,6 +5,7 @@ from flask_restx import Api, Resource, fields
 
 from notifications_microservice import __version__
 from notifications_microservice.controller import (
+    register_user_token,
     schedule_notification,
     send_notification,
 )
@@ -23,7 +24,7 @@ def handle_exception(error: Exception):
     return {'message': message}, getattr(error, 'code', 500)
 
 
-notification_resource = api.model(
+notification_model = api.model(
     'Notification',
     {
         'to': fields.String(description='Token for notification target', required=True),
@@ -32,17 +33,30 @@ notification_resource = api.model(
     },
 )
 
-scheduled_notification_resource = api.clone(
+scheduled_notification_model = api.clone(
     "Scheduled notification",
-    notification_resource,
+    notification_model,
     {'at': fields.DateTime(description='Datetime at which to send the notification')},
+)
+
+
+user_token_model = api.model(
+    "User token",
+    {
+        "user_id": fields.Integer(
+            description="User id the token belongs to", required=True
+        ),
+        "push_token": fields.String(
+            description="The token used for push notifications", required=True
+        ),
+    },
 )
 
 
 @api.route("/notifications")
 class NotificationsResource(Resource):
     @api.doc('push_notification')
-    @api.expect(notification_resource)
+    @api.expect(notification_model)
     def post(self):
         '''Create a new publication'''
         send_notification(**api.payload)
@@ -51,6 +65,15 @@ class NotificationsResource(Resource):
 @api.route("/scheduled_notifications")
 class ScheduledNotifications(Resource):
     @api.doc('scheduled_push_notifications')
-    @api.expect(scheduled_notification_resource)
+    @api.expect(scheduled_notification_model)
     def post(self):
-        schedule_notification(**api.payload)
+        schedule_notification(**api.payloadd)
+
+
+@api.route("/user_token")
+class UserTokenResource(Resource):
+    @api.doc('user_token')
+    @api.expect(user_token_model)
+    def put(self):
+        """Register token to user"""
+        register_user_token(**api.payload)

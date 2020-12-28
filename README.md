@@ -136,7 +136,7 @@ heroku addons:create scheduler:standard
 2. The second step provisions a [postgres addon](https://www.heroku.com/postgres)
 3. The third step sets the app to use [a docker image](https://devcenter.heroku.com/articles/build-docker-images-heroku-yml). Instead of using a [Procfile](https://devcenter.heroku.com/articles/procfile), we will use a `heroku.yml`. Heroku does not yet support a [poetry buildpack](https://github.com/python-poetry/poetry/issues/403) and exporting a `requirements.txt` from poetry is pretty cumbersome.
 4. Deploy 🚀
-5. Set scheduler
+5. Set scheduler to run `poetry run python notifications_microservice/app.py`
 
 ## Diagnosing errors
 You can fetch logs from the app using `heroku logs --tail`.

@@ -129,12 +129,14 @@ heroku create notifications_microservice
 heroku addons:create heroku-postgresql:hobby-dev
 heroku stack:set container
 git push heroku master
+heroku addons:create scheduler:standard
 ```
 
 1. The first step [initializes](https://devcenter.heroku.com/articles/creating-apps) a new heroku app
 2. The second step provisions a [postgres addon](https://www.heroku.com/postgres)
 3. The third step sets the app to use [a docker image](https://devcenter.heroku.com/articles/build-docker-images-heroku-yml). Instead of using a [Procfile](https://devcenter.heroku.com/articles/procfile), we will use a `heroku.yml`. Heroku does not yet support a [poetry buildpack](https://github.com/python-poetry/poetry/issues/403) and exporting a `requirements.txt` from poetry is pretty cumbersome.
 4. Deploy 🚀
+5. Set scheduler
 
 ## Diagnosing errors
 You can fetch logs from the app using `heroku logs --tail`.

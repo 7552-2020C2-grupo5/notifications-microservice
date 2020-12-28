@@ -14,7 +14,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-api = Api(prefix="/v1", version=__version__, validate=True)
+api = Api(
+    prefix="/v1",
+    version=__version__,
+    validate=True,
+    title="Notifications API",
+    description="Notifications microservice for bookbnb",
+    default="Notifications",
+    default_label="Notifications operations",
+)
 
 
 @api.errorhandler
@@ -27,7 +35,9 @@ def handle_exception(error: Exception):
 notification_model = api.model(
     'Notification',
     {
-        'to': fields.String(description='Token for notification target', required=True),
+        'to': fields.Integer(
+            description='User id that will receive the notification', required=True
+        ),
         'title': fields.String(description='Title for the notification', required=True),
         'body': fields.String(description='Body for the notification', required=True),
     },
@@ -58,7 +68,7 @@ class NotificationsResource(Resource):
     @api.doc('push_notification')
     @api.expect(notification_model)
     def post(self):
-        '''Create a new publication'''
+        '''Create a new notification.'''
         send_notification(**api.payload)
 
 
@@ -67,6 +77,7 @@ class ScheduledNotifications(Resource):
     @api.doc('scheduled_push_notifications')
     @api.expect(scheduled_notification_model)
     def post(self):
+        """Create a new scheduled notification."""
         schedule_notification(**api.payloadd)
 
 

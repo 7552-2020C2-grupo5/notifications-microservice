@@ -8,7 +8,7 @@ class ScheduledNotification(db.Model):  # type: ignore
     """Scheduled notifications model."""
 
     id = db.Column(db.Integer, primary_key=True)
-    to = db.Column(db.String)
+    to = db.Column(db.Integer)
     title = db.Column(db.String)
     body = db.Column(db.String)
     at = db.Column(db.DateTime)

@@ -1015,7 +1015,7 @@ testing = ["pytest", "pytest-cov", "pytest-xdist"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "7e5a8b114eed2a54dcd5e7fa3e6aee03783e27a0c61333ea44b7018b72af0260"
+content-hash = "3367936bbac62facfa4b259b4743213f4d7cbc0fd23db863f55edc3e32eef57d"
 
 [metadata.files]
 alembic = [

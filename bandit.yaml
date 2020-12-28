@@ -1,7 +1,3 @@
-
-### Bandit config file generated from:
-# '/home/nox/repos/venv/bin/bandit-config-generator -s B322 -o bandit.yaml'
-
 ### This config may optionally select a subset of tests to run or skip by
 ### filling out the 'tests' and 'skips' lists given below. If no tests are
 ### specified for inclusion then it is assumed all tests are desired. The skips
@@ -85,7 +81,7 @@
 tests:
 
 # (optional) list skipped test IDs here, eg '[B101, B406]':
-skips: ['B322']
+skips:
 
 ### (optional) plugin settings - some test plugins require configuration data
 ### that may be given here, per-plugin. All bandit test plugins have a built in
@@ -131,6 +127,8 @@ any_other_function_with_shell_equals_true:
   - subprocess.check_call
   - subprocess.check_output
   - subprocess.run
+assert_used:
+  skips: []
 hardcoded_tmp_directory:
   tmp_dirs:
   - /tmp

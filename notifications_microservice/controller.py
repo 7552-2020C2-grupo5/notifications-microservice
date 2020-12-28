@@ -15,7 +15,7 @@ from notifications_microservice.models import ScheduledNotification, UserToken, 
 
 def send_notification(to, title, body):
     """Send notifications using the appropiate provider."""
-    user_token = UserToken.query(user_id=to).first()
+    user_token = UserToken.query.filter_by(user_id=to).first()
     if user_token is None:
         raise UserTokenDoesNotExist
     try:
@@ -57,9 +57,7 @@ def send_scheduled_notifications(before):
     )
     for unsent_notification in unsent_notifications:
         send_notification(
-            unsent_notifications.to,
-            unsent_notifications.title,
-            unsent_notifications.body,
+            unsent_notification.to, unsent_notification.title, unsent_notification.body,
         )
         unsent_notification.processed = True
         db.session.merge(unsent_notification)

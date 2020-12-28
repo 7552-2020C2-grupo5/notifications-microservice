@@ -13,3 +13,8 @@ class ScheduledNotification(db.Model):  # type: ignore
     body = db.Column(db.String)
     at = db.Column(db.DateTime)
     processed = db.Column(db.Boolean, default=False)
+
+
+class UserToken(db.Model):  # type: ignore
+    user_id = db.Column(db.Integer, primary_key=True, autoincrement=False)
+    push_token = db.Column(db.String)

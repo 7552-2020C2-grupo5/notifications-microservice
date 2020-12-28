@@ -33,8 +33,8 @@ notification_resource = api.model(
 )
 
 scheduled_notification_resource = api.clone(
-    notification_resource,
     "Scheduled notification",
+    notification_resource,
     {'at': fields.DateTime(description='Datetime at which to send the notification')},
 )
 

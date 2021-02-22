@@ -1,7 +1,7 @@
 """API module."""
 import logging
 
-from flask_restx import Api, Resource, inputs, reqparse, fields, Model
+from flask_restx import Api, Resource, fields, reqparse
 
 from notifications_microservice import __version__
 from notifications_microservice.controller import (

@@ -1,4 +1,6 @@
 """Logic for the microservice."""
+import logging
+
 from exponent_server_sdk import (
     DeviceNotRegisteredError,
     PushClient,
@@ -11,8 +13,6 @@ from requests.exceptions import HTTPError
 
 from notifications_microservice.exceptions import UserTokenDoesNotExist
 from notifications_microservice.models import ScheduledNotification, UserToken, db
-
-import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -37,7 +37,7 @@ def send_notification(to, title, body, data):
         raise
     try:
         response.validate_response()
-    except DeviceNotRegisteredError as exc:
+    except DeviceNotRegisteredError as e:
         # TODO: set invalid
         logger.error(e)
         raise
@@ -73,9 +73,8 @@ def send_scheduled_notifications(before):
                 unsent_notification.body,
                 unsent_notification.data,
             )
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
-            pass
         unsent_notification.processed = True
         db.session.merge(unsent_notification)
     db.session.commit()

@@ -1,8 +1,9 @@
 """SQLAlchemy models."""
+import json
+
+from dateutil import parser as dateutil_parser
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
-import json
-from dateutil import parser as dateutil_parser
 from sqlalchemy.orm import validates
 
 db = SQLAlchemy()

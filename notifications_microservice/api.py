@@ -15,6 +15,7 @@ from notifications_microservice.controller import (
     send_notification,
 )
 from notifications_microservice.exceptions import UserTokenDoesNotExist
+from notifications_microservice.utils import IntegerOrStringField
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -44,7 +45,7 @@ notifications_model = api.model(
         "to": fields.Integer(required=True, location="json"),
         "title": fields.String(required=True, location="json"),
         "body": fields.String(required=True, location="json"),
-        "data": fields.Wildcard(fields.String, required=False, location="json"),
+        "data": fields.Wildcard(IntegerOrStringField, required=False, location="json"),
     },
 )
 

@@ -44,5 +44,5 @@ def create_app():
 
 if __name__ == '__main__':
     with create_app().app_context():
-        before = dt.now()
+        before = dt.utcnow()
         send_scheduled_notifications(before)

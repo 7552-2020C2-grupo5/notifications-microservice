@@ -1,7 +1,7 @@
 """API module."""
 import logging
 
-from flask_restx import Api, Resource, inputs, reqparse
+from flask_restx import Api, Resource, inputs, reqparse, fields, Model
 
 from notifications_microservice import __version__
 from notifications_microservice.controller import (
@@ -32,30 +32,25 @@ def handle_exception(error: Exception):
     return {'message': message}, getattr(error, 'code', 500)
 
 
-notifications_parser = reqparse.RequestParser()
-notifications_parser.add_argument(
-    "to",
-    type=int,
-    help='User id that will receive the notification',
-    required=True,
-    location="json",
-)
-notifications_parser.add_argument(
-    'title', type=str, help='Title for the notification', required=True, location="json"
-)
-notifications_parser.add_argument(
-    'body', type=str, help='Body for the notification', required=True, location="json"
+notifications_model = api.model(
+    "Notification model",
+    {
+        "to": fields.Integer(required=True, location="json"),
+        "title": fields.String(required=True, location="json"),
+        "body": fields.String(required=True, location="json"),
+        "data": fields.Wildcard(fields.String, required=False, location="json"),
+    },
 )
 
-scheduled_notification_parser = notifications_parser.copy()
-scheduled_notification_parser.add_argument(
-    'at',
-    type=inputs.datetime_from_iso8601,
-    help='Datetime at which to send the notification',
-    required=True,
-    location="json",
+scheduled_notifications_model = api.clone(
+    "Scheduled notification model",
+    notifications_model,
+    {
+        "at": fields.DateTime(
+            required=True, help="UTC ISO 8601 datetime to send the notification at"
+        )
+    },
 )
-
 
 user_token_parser = reqparse.RequestParser()
 user_token_parser.add_argument(
@@ -79,10 +74,10 @@ class NotificationsResource(Resource):
     """Notification Resource."""
 
     @api.doc('push_notification')
-    @api.expect(notifications_parser)
+    @api.expect(notifications_model)
     def post(self):
         """Create a new notification."""
-        send_notification(**notifications_parser.parse_args())
+        send_notification(**api.payload)
 
 
 @api.route("/scheduled_notifications")
@@ -90,10 +85,10 @@ class ScheduledNotifications(Resource):
     """Scheduled Notification Resource."""
 
     @api.doc('scheduled_push_notifications')
-    @api.expect(scheduled_notification_parser)
+    @api.expect(scheduled_notifications_model)
     def post(self):
         """Create a new scheduled notification."""
-        schedule_notification(**scheduled_notification_parser.parse_args())
+        schedule_notification(**api.payload)
 
 
 @api.route("/user_token")

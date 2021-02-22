@@ -12,35 +12,44 @@ from requests.exceptions import HTTPError
 from notifications_microservice.exceptions import UserTokenDoesNotExist
 from notifications_microservice.models import ScheduledNotification, UserToken, db
 
+import logging
 
-def send_notification(to, title, body):
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
+def send_notification(to, title, body, data):
     """Send notifications using the appropiate provider."""
     user_token = UserToken.query.filter_by(user_id=to).first()
     if user_token is None:
         raise UserTokenDoesNotExist
     try:
+        logger.info("Attempting to send notification")
         response = PushClient().publish(
-            PushMessage(to=user_token.push_token, title=title, body=body)
+            PushMessage(to=user_token.push_token, title=title, body=body, data=data)
         )
     except (  # pylint: disable= W0706
         PushServerError,
         RequestsConnectionError,
         HTTPError,
-    ):
+    ) as e:
+        logger.error(e)
         raise
     try:
         response.validate_response()
     except DeviceNotRegisteredError as exc:
         # TODO: set invalid
-        raise NotADirectoryError from exc
-    except PushResponseError:  # pylint: disable=W0706
+        logger.error(e)
+        raise
+    except PushResponseError as e:  # pylint: disable=W0706
+        logger.error(e)
         raise
 
 
-def schedule_notification(to, title, body, at):
+def schedule_notification(to, title, body, data, at):
     """Create a new scheduled notification."""
     new_scheduled_notification = ScheduledNotification(
-        to=to, title=title, body=body, at=at
+        to=to, title=title, body=body, at=at, data=data
     )
     db.session.add(new_scheduled_notification)
     db.session.commit()
@@ -55,10 +64,18 @@ def send_scheduled_notifications(before):
         .filter(ScheduledNotification.at <= before)
         .all()
     )
+    logger.info("%s notifications to be sent", len(unsent_notifications))
     for unsent_notification in unsent_notifications:
-        send_notification(
-            unsent_notification.to, unsent_notification.title, unsent_notification.body,
-        )
+        try:
+            send_notification(
+                unsent_notification.to,
+                unsent_notification.title,
+                unsent_notification.body,
+                unsent_notification.data,
+            )
+        except Exception as e:
+            logger.error(e)
+            pass
         unsent_notification.processed = True
         db.session.merge(unsent_notification)
     db.session.commit()

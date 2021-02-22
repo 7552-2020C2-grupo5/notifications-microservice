@@ -22,7 +22,7 @@ def send_notification(to, title, body, data):
     """Send notifications using the appropiate provider."""
     user_token = UserToken.query.filter_by(user_id=to).first()
     if user_token is None:
-        raise UserTokenDoesNotExist
+        raise UserTokenDoesNotExist(f"UserToken {to} does not exist")
     try:
         logger.info("Attempting to send notification")
         response = PushClient().publish(

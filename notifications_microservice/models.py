@@ -15,7 +15,7 @@ class ScheduledNotification(db.Model):  # type: ignore
     id = db.Column(db.Integer, primary_key=True)
     to = db.Column(db.Integer)
     title = db.Column(db.String)
-    body = db.Column(db.String)
+    body = db.Column(db.JSON)
     _data = db.Column(db.String, nullable=True)
     at = db.Column(db.DateTime)
     processed = db.Column(db.Boolean, default=False)

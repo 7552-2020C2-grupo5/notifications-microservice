@@ -1,6 +1,11 @@
 """API module."""
 import logging
 
+from exponent_server_sdk import (
+    DeviceNotRegisteredError,
+    PushResponseError,
+    PushServerError,
+)
 from flask_restx import Api, Resource, fields, reqparse
 
 from notifications_microservice import __version__
@@ -9,6 +14,7 @@ from notifications_microservice.controller import (
     schedule_notification,
     send_notification,
 )
+from notifications_microservice.exceptions import UserTokenDoesNotExist
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -77,7 +83,14 @@ class NotificationsResource(Resource):
     @api.expect(notifications_model)
     def post(self):
         """Create a new notification."""
-        send_notification(**api.payload)
+        try:
+            send_notification(**api.payload)
+        except UserTokenDoesNotExist as e:
+            return {"message": str(e)}, 400
+        except DeviceNotRegisteredError:
+            return {"message": "Invalid registered token"}, 400  # TODO: better error
+        except (PushResponseError, PushServerError) as e:
+            return {"message": str(e)}, 500
 
 
 @api.route("/scheduled_notifications")

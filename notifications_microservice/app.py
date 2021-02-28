@@ -7,11 +7,11 @@ import requests
 from flask import Flask, request
 from flask_cors import CORS
 from flask_migrate import Migrate
-from reviews_microservice.constants import DEFAULT_VERIFICATION_URL
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from notifications_microservice.api import api
 from notifications_microservice.cfg import config
+from notifications_microservice.constants import DEFAULT_VERIFICATION_URL
 from notifications_microservice.controller import send_scheduled_notifications
 from notifications_microservice.models import db
 

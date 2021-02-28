@@ -3,9 +3,11 @@ import logging
 from datetime import datetime as dt
 from pathlib import Path
 
-from flask import Flask
+import requests
+from flask import Flask, request
 from flask_cors import CORS
 from flask_migrate import Migrate
+from reviews_microservice.constants import DEFAULT_VERIFICATION_URL
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from notifications_microservice.api import api
@@ -24,6 +26,33 @@ def fix_dialect(s):
     return s
 
 
+def before_request():
+    excluded_paths = [
+        "/",
+        "/swaggerui/favicon-32x32.png",
+        "/swagger.json",
+        "/swaggerui/swagger-ui-standalone-preset.js",
+        "/swaggerui/swagger-ui-standalone-preset.js",
+        "/swaggerui/swagger-ui-bundle.js",
+        "/swaggerui/swagger-ui.css",
+        "/swaggerui/droid-sans.css",
+    ]
+    if (
+        config.env(default="DEV") == "DEV"
+        or request.path in excluded_paths
+        or request.method == "OPTIONS"
+    ):
+        return
+    bookbnb_token = request.headers.get("BookBNB-Authorization")
+    if bookbnb_token is None:
+        return {"message": "BookBNB token is missing"}, 401
+
+    r = requests.post(config.token_verification_url(default=DEFAULT_VERIFICATION_URL))
+
+    if not r.ok:
+        return {"message": "Invalid BookBNB token"}, 401
+
+
 def create_app():
     """creates a new app instance"""
     new_app = Flask(__name__)
@@ -38,6 +67,7 @@ def create_app():
         new_app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1
     )  # remove after flask-restx > 0.2.0 is released
     # https://github.com/python-restx/flask-restx/issues/230
+    new_app.before_request(before_request)
     CORS(new_app)
     return new_app
 

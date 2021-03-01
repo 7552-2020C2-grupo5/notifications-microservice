@@ -15,6 +15,7 @@ from notifications_microservice.controller import (
     send_notification,
 )
 from notifications_microservice.exceptions import UserTokenDoesNotExist
+from notifications_microservice.namespaces.token import api as token_namespace
 from notifications_microservice.utils import IntegerOrStringField
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ api = Api(
     default="Notifications",
     default_label="Notifications operations",
 )
+api.add_namespace(token_namespace, path='/token')
 
 
 @api.errorhandler
